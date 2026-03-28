@@ -94,7 +94,7 @@ const UserDashboard = ({ user }) => {
     <div className="container">
       <div className="navbar">
         <h3>Welcome, {user.name}</h3>
-        <button className="btn btn-outline" onClick={() => window.location.reload()}> <LogOut size={16}/> Logout</button>
+        <button className="btn btn-outline" onClick={() => navigate('/')}> <LogOut size={16}/> Logout</button>
       </div>
 
       <h3>Available Insurance Plans</h3>
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
     <div className="container">
       <div className="navbar">
         <h3>Admin Panel</h3>
-        <button className="btn btn-outline" onClick={() => window.location.reload()}>Logout</button>
+        <button className="btn btn-outline" onClick={() => navigate('/')}>Logout</button>
       </div>
       
       <div className="card">
