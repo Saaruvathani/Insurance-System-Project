@@ -8,7 +8,8 @@ const ClaimModel = require('./models/claim'); // <--- 1. NEW IMPORT
 const app = express();
 app.use(express.json()); 
 app.use(cors({
-    origin: "https://insurance-system-project-fz9v5opz8-saaruvathanis-projects.vercel.app/", // Replace with your REAL Vercel URL
+    origin: ["https://insurance-system-project-git-main-saaruvathanis-projects.vercel.app",
+        "https://insurance-system-project.vercel.app"],// Replace with your REAL Vercel URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
