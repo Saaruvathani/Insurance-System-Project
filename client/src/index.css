@@ -1,0 +1,159 @@
+:root {
+  --primary: #4f46e5;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg);
+  margin: 0;
+  color: #1f2937;
+}
+
+/* Layout */
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+.navbar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: white; padding: 15px 30px; border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 30px;
+}
+
+/* Cards (Novelty: Stack Effect) */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.card {
+  background: var(--card-bg); padding: 20px; border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-5px); /* This creates the stack lift effect */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Forms */
+.login-box { max-width: 400px; margin: 80px auto; text-align: center; }
+.input-group { margin-bottom: 15px; text-align: left; }
+.input-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9em; }
+.input {
+  width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;
+  box-sizing: border-box; /* Fixes padding issues */
+}
+
+/* Buttons */
+.btn {
+  background: var(--primary); color: white; border: none; padding: 10px 20px;
+  border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%;
+}
+.btn:hover { opacity: 0.9; }
+.btn-outline { background: transparent; border: 1px solid #d1d5db; color: #374151; width: auto; }
+
+/* Utilities */
+.status-badge {
+  padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;
+}
+.status-Pending { background: #fff7ed; color: #c2410c; }
+.status-Approved { background: #f0fdf4; color: #15803d; }
+.error-msg { color: #dc2626; font-size: 0.9em; margin-top: 10px; }
+
+/* --- Glassmorphism Register Page --- */
+
+/* 1. The Page Background (Soft Pastel) */
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* Soft Off-White */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 2. The Glass Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); /* Subtle Shadow */
+  backdrop-filter: blur(12px); /* The Blur Effect */
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 3rem;
+  width: 400px;
+  text-align: center;
+}
+
+.glass-card h2 {
+  color: #333;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* 3. Floating Label Inputs */
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.glass-input {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  color: #333;
+  box-sizing: border-box; /* Fixes padding issues */
+}
+
+.glass-input:focus {
+  background: white;
+  border-color: #a5b4fc; /* Soft Indigo */
+  box-shadow: 0 0 10px rgba(165, 180, 252, 0.3);
+}
+
+/* Label Animation Logic */
+.floating-label {
+  position: absolute;
+  left: 15px;
+  top: 14px;
+  color: #888;
+  font-size: 1rem;
+  pointer-events: none; /* Let clicks pass through to input */
+  transition: all 0.3s ease;
+}
+
+/* When input is focused OR has text, move label up */
+.glass-input:focus ~ .floating-label,
+.glass-input:not(:placeholder-shown) ~ .floating-label {
+  top: -10px;
+  left: 10px;
+  font-size: 0.8rem;
+  background: white;
+  padding: 0 5px;
+  border-radius: 5px;
+  color: #6366f1;
+  font-weight: 600;
+}
+
+/* 4. The Button */
+.glow-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%); /* Indigo Gradient */
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.glow-btn:hover {
+  transform: translateY(-2px); /* Slight lift */
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4); /* Glow effect */
+}
