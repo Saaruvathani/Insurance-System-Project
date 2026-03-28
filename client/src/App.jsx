@@ -58,6 +58,7 @@ const Login = ({ setUser }) => {
 
 // --- USER DASHBOARD ---
 const UserDashboard = ({ user }) => {
+  const navigate = useNavigate();
   const [policies, setPolicies] = useState([]);
   const [myPolicies, setMyPolicies] = useState([]);
 
@@ -137,6 +138,7 @@ const UserDashboard = ({ user }) => {
 // --- ADMIN DASHBOARD ---
 // --- ADMIN DASHBOARD (UPDATED) ---
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [claims, setClaims] = useState([]);
 
   // Fetch all claims when page loads
