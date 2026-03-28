@@ -7,7 +7,15 @@ const ClaimModel = require('./models/claim'); // <--- 1. NEW IMPORT
 
 const app = express();
 app.use(express.json()); 
-app.use(cors()); 
+app.use(cors({
+    origin: "https://insurance-system-project-fz9v5opz8-saaruvathanis-projects.vercel.app/", // Replace with your REAL Vercel URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
+
+app.get("/", (req, res) => {
+    res.send("Insurance System API is live and connected to MongoDB Atlas!");
+});
 
 const dbURI = process.env.MONGO_URI;
 // CONNECTION TO LOCAL MONGODB
