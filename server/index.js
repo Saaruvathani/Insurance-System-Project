@@ -7,9 +7,12 @@ const ClaimModel = require('./models/claim');
 
 const app = express();
 app.use(cors({
-    origin: "https://insurance-system-project-git-main-saaruvathanis-projects.vercel.app", // ✅ Correct
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+  origin: [
+    'https://insurance-system-project.vercel.app',
+    'https://insurance-system-project-git-main-saaruvathanis-projects.vercel.app',
+    'http://localhost:5173'  // keep this for local dev
+  ],
+  credentials: true
 }));
 app.use(express.json());
 
