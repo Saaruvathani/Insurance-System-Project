@@ -12,8 +12,10 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 app.use(express.json()); 
 app.use(cors({
-    origin: ["https://insurance-system-project-git-main-saaruvathanis-projects.vercel.app",
-        "https://insurance-system-project.vercel.app"],// Replace with your REAL Vercel URL
+    origin: [
+        "http://localhost:5173"
+        /*"https://insurance-system-project-git-main-saaruvathanis-projects.vercel.app",
+        "https://insurance-system-project.vercel.app"*/],// Replace with your REAL Vercel URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
