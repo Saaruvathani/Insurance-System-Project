@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const ClaimSchema = new mongoose.Schema({
     // Better to use ObjectId so you can "populate" user details later if needed
     userId: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: String, 
         ref: 'User', 
         required: true 
     },
