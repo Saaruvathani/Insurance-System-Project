@@ -1,11 +1,32 @@
 const mongoose = require('mongoose');
 
 const ClaimSchema = new mongoose.Schema({
-    userId: String,
-    userName: String,      // Save name so Admin sees it easily
-    policyName: String,    // Save policy name
-    status: { type: String, default: "Pending" },
-    date: { type: String, default: new Date().toLocaleDateString() }
+    // Better to use ObjectId so you can "populate" user details later if needed
+    userId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
+    },
+    userName: String,
+    policyName: String, 
+    
+    // CRITICAL: You need this to check against the 3x limit!
+    claimAmount: { 
+        type: Number, 
+        required: true 
+    },
+    
+    reason: String, // Good to have for the admin to review
+    status: { 
+        type: String, 
+        default: "Pending" 
+    },
+    
+    // FIX: Using Date type is better for sorting and filtering
+    date: { 
+        type: Date, 
+        default: Date.now 
+    }
 });
 
 module.exports = mongoose.model('Claim', ClaimSchema);

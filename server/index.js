@@ -4,6 +4,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const UserModel = require('./models/user');
 const ClaimModel = require('./models/claim'); // <--- 1. NEW IMPORT
+// Inside your server/index.js
+const userRoutes = require('./routes/userRoutes');
+const claimRoutes = require('./routes/claimRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 app.use(express.json()); 
@@ -13,6 +17,10 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
+
+app.use('/api/users', userRoutes);
+app.use('/api/claims', claimRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.get("/", (req, res) => {
     res.send("Insurance System API is live and connected to MongoDB Atlas!");

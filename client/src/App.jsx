@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Link } from 'react-router-dom';
-import { loginAPI, getPoliciesAPI, applyPolicyAPI, getAllClaimsAPI, getMyClaimsAPI, approveClaimAPI } from './services/api';
+import { 
+  loginAPI, 
+  getPoliciesAPI, 
+  applyPolicyAPI, 
+  getMyClaimsAPI, 
+  fetchPendingClaims, 
+  updateClaimStatus,
+  fetchUserProfileAPI, 
+  payPremiumAPI 
+} from './services/api';
 import Register from './pages/Register';
-import { Shield, User, LogOut } from 'lucide-react'; // Icons
+import { Shield, LogOut } from 'lucide-react';
 
-
-// --- LOGIN PAGE ---
-// --- LOGIN PAGE (UPDATED) ---
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,16 +22,12 @@ const Login = ({ setUser }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Novelty: Simple Validation
-    if (!email.includes('@')) { setError("Please enter a valid email."); return; }
-
     try {
       const user = await loginAPI(email, password);
       setUser(user);
       navigate(user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
-      setError(err);
+      setError(err.toString());
     }
   };
 
@@ -36,38 +38,42 @@ const Login = ({ setUser }) => {
       <form onSubmit={handleLogin}>
         <div className="input-group">
           <label>Email</label>
-          <input className="input"  value={email} onChange={e => setEmail(e.target.value)} />
+          <input className="input" value={email} onChange={e => setEmail(e.target.value)} />
         </div>
         <div className="input-group">
           <label>Password</label>
-          <input className="input" type="password"  value={password} onChange={e => setPassword(e.target.value)} />
+          <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)} />
         </div>
         <button className="btn">Login Securely</button>
         {error && <p className="error-msg">{error}</p>}
       </form>
-
-      {/* --- NEW REGISTER LINK SECTION --- */}
       <div style={{ marginTop: '10px', textAlign: 'center' }}>
          <p>Don't have an account? <Link to="/register" style={{ color: '#4f46e5' }}>Register here</Link></p>
       </div>
-      {/* --------------------------------- */}
-
     </div>
   );
 };
 
-// --- USER DASHBOARD ---
 const UserDashboard = ({ user }) => {
   const navigate = useNavigate();
   const [policies, setPolicies] = useState([]);
   const [myPolicies, setMyPolicies] = useState([]);
+  const [userData, setUserData] = useState({ totalPaid: 0, availableCoverage: 0 });
+  const [payAmount, setPayAmount] = useState("");
 
-  // 1. Fetch available policies
   useEffect(() => {
     getPoliciesAPI().then(setPolicies);
+    fetchUserStats();
+    fetchClaims();
   }, []);
 
-  // 2. Fetch MY applied policies from the database
+  const fetchUserStats = async () => {
+    if (user?.id) {
+      const data = await fetchUserProfileAPI(user.id); 
+      setUserData(data);
+    }
+  };
+
   const fetchClaims = async () => {
     if (user?.id) {
       const claims = await getMyClaimsAPI(user.id);
@@ -75,86 +81,77 @@ const UserDashboard = ({ user }) => {
     }
   };
 
-  useEffect(() => {
-    fetchClaims();
-  }, [user]); // Run this when user loads
+  const handlePayment = async () => {
+    try {
+      await payPremiumAPI(user.id, payAmount); 
+      alert("Payment Successful!");
+      setPayAmount("");
+      fetchUserStats(); 
+    } catch (err) {
+      alert("Payment failed");
+    }
+  };
 
   const handleApply = async (policy) => {
-    if (confirm(`Apply for ${policy.name}?`)) {
-      // 3. Send application to backend
-      await applyPolicyAPI(user.id, user.email, policy);
-      
-      // 4. Refresh the list from the database immediately
-      await fetchClaims();
-      
-      alert("Application Submitted!");
+    if (policy.cost > userData.availableCoverage) {
+      return alert("Insufficient Coverage!");
+    }
+    if (confirm(`Claim $${policy.cost} for ${policy.name}?`)) {
+      await applyPolicyAPI(user.id, user.username, policy);
+      fetchClaims();
+      fetchUserStats(); 
     }
   };
 
   return (
     <div className="container">
       <div className="navbar">
-        <h3>Welcome, {user.name}</h3>
+        <h3>Welcome, {user?.username}</h3>
         <button className="btn btn-outline" onClick={() => navigate('/')}> <LogOut size={16}/> Logout</button>
       </div>
 
-      <h3>Available Insurance Plans</h3>
+      <div className="card-grid" style={{ marginBottom: '30px' }}>
+        <div className="card">
+          <p>Total Paid: <strong>${userData.totalPaid}</strong></p>
+        </div>
+        <div className="card">
+          <p>Limit (3x): <strong>${userData.availableCoverage}</strong></p>
+        </div>
+        <div className="card">
+          <input type="number" placeholder="Amt" value={payAmount} onChange={e => setPayAmount(e.target.value)} />
+          <button onClick={handlePayment}>Pay</button>
+        </div>
+      </div>
+
+      <h3>Plans</h3>
       <div className="card-grid">
         {policies.map(p => (
           <div key={p.id} className="card">
-            <div style={{display:'flex', justifyContent:'space-between'}}>
-              <h4>{p.name}</h4>
-              <Shield size={20} color="#4f46e5"/>
-            </div>
-            <p style={{color:'#666'}}>{p.desc}</p>
-            <h3 style={{color:'#4f46e5'}}>${p.cost}/year</h3>
-            <button className="btn" onClick={() => handleApply(p)}>Apply Now</button>
+            <h4>{p.name}</h4>
+            <p>${p.cost}</p>
+            <button onClick={() => handleApply(p)} disabled={p.cost > userData.availableCoverage}>Apply</button>
           </div>
         ))}
       </div>
-
-      <h3 style={{marginTop:'40px'}}>My Applied Policies</h3>
-      {myPolicies.length === 0 ? <p>No policies yet.</p> : (
-        <div className="card">
-          <table width="100%" style={{borderCollapse:'collapse'}}>
-            <thead><tr style={{textAlign:'left'}}><th>Policy</th><th>Date</th><th>Status</th></tr></thead>
-            <tbody>
-              {myPolicies.map((p, idx) => (
-                <tr key={idx} style={{borderBottom:'1px solid #eee', height:'40px'}}>
-                  {/* Note: The backend returns 'policyName', not 'name' */}
-                  <td>{p.policyName}</td> 
-                  <td>{p.date}</td>
-                  <td><span className={`status-badge status-${p.status}`}>{p.status}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 };
 
-// --- ADMIN DASHBOARD ---
-// --- ADMIN DASHBOARD (UPDATED) ---
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [claims, setClaims] = useState([]);
 
-  // Fetch all claims when page loads
-  useEffect(() => {
-    loadClaims();
-  }, []);
+  useEffect(() => { loadClaims(); }, []);
 
-  const loadClaims = () => {
-    getAllClaimsAPI().then(setClaims);
+  const loadClaims = async () => {
+    const data = await fetchPendingClaims();
+    setClaims(data);
   };
 
-  const handleApprove = async (claimId) => {
-    if(confirm("Approve this policy?")) {
-      await approveClaimAPI(claimId); // Call the backend
-      loadClaims(); // Refresh the list to show "Approved"
-    }
+  const handleAction = async (id, status) => {
+    await updateClaimStatus(id, status);
+    alert(`Claim ${status}`);
+    loadClaims();
   };
 
   return (
@@ -163,45 +160,20 @@ const AdminDashboard = () => {
         <h3>Admin Panel</h3>
         <button className="btn btn-outline" onClick={() => navigate('/')}>Logout</button>
       </div>
-      
       <div className="card">
-        <h3>All User Applications</h3>
-        {claims.length === 0 ? <p>No applications found.</p> : (
-          <table width="100%" cellPadding="10">
-            <thead>
-              <tr style={{textAlign:'left', background:'#f9fafb'}}>
-                <th>User Name</th>
-                <th>Policy</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
+        <h3>Pending Claims</h3>
+        {claims.length === 0 ? <p>No claims.</p> : (
+          <table width="100%">
+            <thead><tr><th>User</th><th>Policy</th><th>Amt</th><th>Action</th></tr></thead>
             <tbody>
-              {claims.map((claim) => (
-                <tr key={claim._id} style={{borderBottom:'1px solid #eee'}}>
+              {claims.map(c => (
+                <tr key={c._id}>
+                  <td>{c.userName}</td>
+                  <td>{c.policyName}</td>
+                  <td>${c.claimAmount}</td>
                   <td>
-                    {claim.userName}
-                    {/* We can show userId if we want, but name is better */}
-                    <br/><small style={{color:'#999'}}>ID: {claim.userId}</small>
-                  </td>
-                  <td>{claim.policyName}</td>
-                  <td>
-                    <span className={`status-badge status-${claim.status}`}>
-                      {claim.status}
-                    </span>
-                  </td>
-                  <td>
-                    {claim.status === 'Pending' ? (
-                      <button 
-                        className="btn" 
-                        style={{padding:'5px 10px', fontSize:'0.8em'}}
-                        onClick={() => handleApprove(claim._id)}
-                      >
-                        Approve
-                      </button>
-                    ) : (
-                      <span style={{color:'green', fontWeight:'bold'}}>Done</span>
-                    )}
+                    <button onClick={() => handleAction(c._id, 'Approved')}>Approve</button>
+                    <button onClick={() => handleAction(c._id, 'Rejected')}>Reject</button>
                   </td>
                 </tr>
               ))}
@@ -213,20 +185,13 @@ const AdminDashboard = () => {
   );
 };
 
-// --- MAIN ROUTER ---
-// --- MAIN ROUTER (UPDATED) ---
 function App() {
   const [user, setUser] = useState(null);
-
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login setUser={setUser} />} />
-        
-        {/* --- NEW REGISTER ROUTE --- */}
         <Route path="/register" element={<Register />} />
-        {/* -------------------------- */}
-
         <Route path="/dashboard" element={user ? <UserDashboard user={user} /> : <Login setUser={setUser} />} />
         <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboard /> : <Login setUser={setUser} />} />
       </Routes>
