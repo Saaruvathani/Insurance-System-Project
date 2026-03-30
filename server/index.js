@@ -6,7 +6,11 @@ const UserModel = require('./models/user');
 const ClaimModel = require('./models/claim');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "https://insurance-system-project-git-main-saaruvathanis-projects.vercel.app", // ✅ Correct
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json());
 
 app.get("/", (req, res) => {
